@@ -15,7 +15,7 @@ target 'SSIncTest' do
     # Hermes is now enabled by default. Disable by setting this flag to false.
     # Upcoming versions of React Native may rely on get_default_flags(), but
     # we make it explicit here to aid in the React Native upgrade process.
-    :hermes_enabled => true,
+    :hermes_enabled => false,
     :fabric_enabled => flags[:fabric_enabled],
     # Enables Flipper.
     #
@@ -40,4 +40,8 @@ target 'SSIncTest' do
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
+  
+  # installer.pods_project.build_configurations.each do |config|
+  #   config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+  # end
 end
