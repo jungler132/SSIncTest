@@ -4,8 +4,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Linking,
-  FlatList,
   ActivityIndicator,
   Alert,
 } from 'react-native';
@@ -13,7 +11,7 @@ import {TextInput} from 'react-native-paper';
 
 import Geolocation from '@react-native-community/geolocation';
 
-import {styles} from './style';
+import {styles} from '../MainScreen/styles';
 import {doRequest} from '../../services/doRequest';
 import {useDispatch, useSelector} from 'react-redux';
 import {favoriteDeleteList, favoriteList} from '../FavoriteScreen/saga/action';
@@ -26,16 +24,10 @@ const MainScreen = () => {
   const [dataForShow, setDataForShow] = useState();
   const [latitudeSearch, setLatitudeSearch] = useState('');
   const [longitudeSearch, setLongitudeSearch] = useState('');
-  console.log('currentCity ---->', currentCity);
-  console.log('dataForShow ---->', dataForShow);
 
   const dispatch = useDispatch();
 
   const wholeData = useSelector(getFavoriteList);
-
-  console.log('WHOLE DATA ---->', wholeData);
-
-  useEffect(() => {}, [wholeData]);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -71,18 +63,20 @@ const MainScreen = () => {
 
   const searchCity = () => {
     try {
-      const result = Promise.resolve(
-        doRequest(latitudeSearch, longitudeSearch, API_KEY),
-      );
+      if (latitudeSearch && longitudeSearch) {
+        const result = Promise.resolve(
+          doRequest(latitudeSearch, longitudeSearch, API_KEY),
+        );
 
-      result.then(value => {
-        setDataForShow(value);
-      });
+        result.then(value => {
+          setDataForShow(value);
+        });
+      } else {
+        Alert.alert('ERROR', 'Wrong coordinates');
+      }
     } catch (e) {
       console.log('ERROR --->', e);
     }
-
-    console.log('lat -->', latitudeSearch, 'lon--->', longitudeSearch);
   };
 
   const onPressFav = () => {
@@ -94,73 +88,37 @@ const MainScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: 'white',
-        // justifyContent: 'center',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-      }}>
+    <SafeAreaView style={styles.safeAreaView}>
       {dataForShow ? (
         <>
-          <View
-            style={{
-              width: '60%',
-              height: '10%',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{textAlign: 'center', fontSize: 20, color: 'blue'}}>
-              {dataForShow?.sys?.country}
-            </Text>
-            <Text style={{textAlign: 'center', fontSize: 25, color: 'blue'}}>
-              {dataForShow.name}
-            </Text>
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 20,
-                color: 'blue',
-                textTransform: 'capitalize',
-              }}>
+          <View style={styles.mainViewStyle}>
+            <Text style={styles.countryText}>{dataForShow?.sys?.country}</Text>
+            <Text style={styles.cityText}>{dataForShow.name}</Text>
+            <Text style={styles.weatherDescriptionText}>
               {dataForShow?.weather[0]?.description}
             </Text>
           </View>
-          <View
-            style={{
-              width: '80%',
-              height: '50%',
-              borderColor: 'teal',
-              borderWidth: 1,
-              borderRadius: 30,
-              justifyContent: 'space-evenly',
-            }}>
-            <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
+          <View style={styles.middleViewStyle}>
+            <Text style={styles.middleViewText}>
               Feels Like: {dataForShow.main?.feels_like}
             </Text>
-            <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
+            <Text style={styles.middleViewText}>
               Humidity: {dataForShow.main?.humidity}
             </Text>
-            <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
+            <Text style={styles.middleViewText}>
               Pressure: {dataForShow.main?.pressure}
             </Text>
-            <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
+            <Text style={styles.middleViewText}>
               Temperature: {tempConverter(dataForShow.main?.temp)} °C
             </Text>
-            <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
+            <Text style={styles.middleViewText}>
               Temperature Max: {tempConverter(dataForShow.main?.temp_max)} °C
             </Text>
-            <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
+            <Text style={styles.middleViewText}>
               Temperature Min: {tempConverter(dataForShow.main?.temp_min)} °C
             </Text>
           </View>
-          <View
-            style={{
-              width: '60%',
-              height: '30%',
-              justifyContent: 'space-evenly',
-            }}>
+          <View style={styles.bottomViewStyle}>
             <TextInput
               keyboardType="numeric"
               onChangeText={newText => setLatitudeSearch(newText)}
@@ -176,67 +134,21 @@ const MainScreen = () => {
               style={{height: 30, marginTop: 5}}
             />
             <TouchableOpacity
-              style={{
-                width: 100,
-                height: 40,
-                borderRadius: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: 'teal',
-                marginTop: 5,
-              }}
+              style={styles.searchButtonStyle}
               onPress={searchCity}>
-              <Text style={{fontSize: 15, textAlign: 'center', color: 'teal'}}>
-                Search
-              </Text>
+              <Text style={styles.searchText}>Search</Text>
             </TouchableOpacity>
-            {wholeData.findIndex(item => item.id === dataForShow.id) ? (
+            {wholeData.some(item => item.id === dataForShow?.id) ? (
               <TouchableOpacity
-                onPress={onPressFav}
-                style={{
-                  height: 40,
-                  borderRadius: 20,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  alignSelf: 'center',
-                  borderWidth: 1,
-                  borderColor: 'teal',
-                  marginTop: 5,
-                }}>
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 15,
-                    color: 'teal',
-                    paddingHorizontal: 5,
-                  }}>
-                  Add to favorite
-                </Text>
+                onPress={onPressDelete}
+                style={styles.deleteButtonStyle}>
+                <Text style={styles.deleteText}>Delete from favorite</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                onPress={onPressDelete}
-                style={{
-                  height: 40,
-                  borderRadius: 20,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  alignSelf: 'center',
-                  borderWidth: 1,
-                  borderColor: 'teal',
-                  marginTop: 5,
-                }}>
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 15,
-                    color: 'teal',
-                    paddingHorizontal: 5,
-                  }}>
-                  Delete from favorite
-                </Text>
+                onPress={onPressFav}
+                style={styles.favoriteButtonStyle}>
+                <Text style={styles.favoriteText}>Add to favorite</Text>
               </TouchableOpacity>
             )}
           </View>
