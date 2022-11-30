@@ -15,6 +15,9 @@ import Geolocation from '@react-native-community/geolocation';
 
 import {styles} from './style';
 import {doRequest} from '../../services/doRequest';
+import {useDispatch, useSelector} from 'react-redux';
+import {favoriteList} from '../FavoriteScreen/saga/action';
+import { getFavoriteList } from '../../saga/selectors';
 
 const API_KEY = '2ccf41a60ded8ab3041d05eff597ea11';
 
@@ -25,6 +28,12 @@ const MainScreen = () => {
   const [longitudeSearch, setLongitudeSearch] = useState('');
   console.log('currentCity ---->', currentCity);
   console.log('dataForShow ---->', dataForShow);
+
+  const dispatch = useDispatch();
+
+  const wholeData = useSelector(getFavoriteList);
+
+  console.log('WHOLE DATA ---->', wholeData);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -53,9 +62,9 @@ const MainScreen = () => {
     }
   }, [currentCity]);
 
-  const cToF = celsius => {
-    let cTemp = celsius;
-    return String((cTemp * 9) / 5 + 32).slice(0, 6);
+  const tempConverter = foreng => {
+    let fTemp = foreng;
+    return String(((fTemp - 32) * 5) / 9).slice(0, 6);
   };
 
   const searchCity = () => {
@@ -72,6 +81,10 @@ const MainScreen = () => {
     }
 
     console.log('lat -->', latitudeSearch, 'lon--->', longitudeSearch);
+  };
+
+  const onPressFav = () => {
+    dispatch(favoriteList(dataForShow));
   };
 
   return (
@@ -112,8 +125,10 @@ const MainScreen = () => {
             style={{
               width: '80%',
               height: '50%',
-              borderColor: 'red',
+              borderColor: 'teal',
               borderWidth: 1,
+              borderRadius: 30,
+              justifyContent: 'space-evenly',
             }}>
             <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
               Feels Like: {dataForShow.main?.feels_like}
@@ -125,19 +140,19 @@ const MainScreen = () => {
               Pressure: {dataForShow.main?.pressure}
             </Text>
             <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
-              Temperature: {cToF(dataForShow.main?.temp)}
+              Temperature: {tempConverter(dataForShow.main?.temp)} °C
             </Text>
             <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
-              Temperature Max: {cToF(dataForShow.main?.temp_max)}
+              Temperature Max: {tempConverter(dataForShow.main?.temp_max)} °C
             </Text>
             <Text style={{padding: 10, color: 'teal', fontSize: 20}}>
-              Temperature Min: {cToF(dataForShow.main?.temp_min)}
+              Temperature Min: {tempConverter(dataForShow.main?.temp_min)} °C
             </Text>
           </View>
           <View
             style={{
               width: '60%',
-              height: '20%',
+              height: '30%',
               justifyContent: 'space-evenly',
             }}>
             <TextInput
@@ -152,20 +167,46 @@ const MainScreen = () => {
               onChangeText={newText => setLongitudeSearch(newText)}
               defaultValue={longitudeSearch}
               placeholder="Enter Longitude"
-              style={{height: 30}}
+              style={{height: 30, marginTop: 5}}
             />
             <TouchableOpacity
               style={{
                 width: 100,
                 height: 40,
-                backgroundColor: 'teal',
                 borderRadius: 20,
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: 'teal',
+                marginTop: 5,
               }}
               onPress={searchCity}>
-              <Text style={{fontSize: 15, textAlign: 'center'}}>Search</Text>
+              <Text style={{fontSize: 15, textAlign: 'center', color: 'teal'}}>
+                Search
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onPressFav}
+              style={{
+                height: 40,
+                borderRadius: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: 'teal',
+                marginTop: 5,
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 15,
+                  color: 'teal',
+                  paddingHorizontal: 5,
+                }}>
+                Add to favorite
+              </Text>
             </TouchableOpacity>
           </View>
         </>

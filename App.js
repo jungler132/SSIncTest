@@ -6,10 +6,10 @@ import {store} from './redux/store/store';
 
 export default function App() {
   return (
-    // <Provider store={store}>
+    <Provider store={store}>
       <NavigationContainer>
         <RootStack />
       </NavigationContainer>
-    // </Provider>
+    </Provider>
   );
 }
