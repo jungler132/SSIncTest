@@ -7,13 +7,21 @@ const Tab = createMaterialBottomTabNavigator();
 
 function RootStack() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-      initialRouteName={'MainScreen'}>
-      <Tab.Screen name="MainScreen" component={MainScreen} />
-      <Tab.Screen name="FavoriteScreen" component={FavoriteScreen} />
+    <Tab.Navigator initialRouteName={'MainScreen'}>
+      <Tab.Screen
+        options={{
+          tabBarLabel: 'Weather',
+        }}
+        name="MainScreen"
+        component={MainScreen}
+      />
+      <Tab.Screen
+        options={{
+          tabBarLabel: 'Favorite',
+        }}
+        name="FavoriteScreen"
+        component={FavoriteScreen}
+      />
     </Tab.Navigator>
   );
 }
