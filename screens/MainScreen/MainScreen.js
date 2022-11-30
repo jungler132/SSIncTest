@@ -16,8 +16,8 @@ import Geolocation from '@react-native-community/geolocation';
 import {styles} from './style';
 import {doRequest} from '../../services/doRequest';
 import {useDispatch, useSelector} from 'react-redux';
-import {favoriteList} from '../FavoriteScreen/saga/action';
-import { getFavoriteList } from '../../saga/selectors';
+import {favoriteDeleteList, favoriteList} from '../FavoriteScreen/saga/action';
+import {getFavoriteList} from '../../saga/selectors';
 
 const API_KEY = '2ccf41a60ded8ab3041d05eff597ea11';
 
@@ -34,6 +34,8 @@ const MainScreen = () => {
   const wholeData = useSelector(getFavoriteList);
 
   console.log('WHOLE DATA ---->', wholeData);
+
+  useEffect(() => {}, [wholeData]);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -85,6 +87,10 @@ const MainScreen = () => {
 
   const onPressFav = () => {
     dispatch(favoriteList(dataForShow));
+  };
+
+  const onPressDelete = () => {
+    dispatch(favoriteDeleteList(dataForShow));
   };
 
   return (
@@ -186,28 +192,53 @@ const MainScreen = () => {
                 Search
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={onPressFav}
-              style={{
-                height: 40,
-                borderRadius: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: 'teal',
-                marginTop: 5,
-              }}>
-              <Text
+            {wholeData.findIndex(item => item.id === dataForShow.id) ? (
+              <TouchableOpacity
+                onPress={onPressFav}
                 style={{
-                  textAlign: 'center',
-                  fontSize: 15,
-                  color: 'teal',
-                  paddingHorizontal: 5,
+                  height: 40,
+                  borderRadius: 20,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  borderWidth: 1,
+                  borderColor: 'teal',
+                  marginTop: 5,
                 }}>
-                Add to favorite
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 15,
+                    color: 'teal',
+                    paddingHorizontal: 5,
+                  }}>
+                  Add to favorite
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={onPressDelete}
+                style={{
+                  height: 40,
+                  borderRadius: 20,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  borderWidth: 1,
+                  borderColor: 'teal',
+                  marginTop: 5,
+                }}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 15,
+                    color: 'teal',
+                    paddingHorizontal: 5,
+                  }}>
+                  Delete from favorite
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </>
       ) : (
